@@ -5,8 +5,11 @@ from PIL import Image
 
 checkbox_type = 1
 # df = pd.read_excel('data/Бз-4.xlsx')
+path_to_end_folder = 'data'
 df = pd.read_excel('data/2 вариант.xlsx')
-dir_path = 'data'
+
+
+
 
 if checkbox_type == 0:
     # получаем список групп
@@ -31,11 +34,11 @@ if checkbox_type == 0:
             # меняем размер
             img = img.resize((110, 110))
             # проверяем наличие папки с названием группы, если ее нет то создаем и сохраняем файл
-            if os.path.isdir(f'{dir_path}/{group}'):
-                img.save(f'{dir_path}/{group}/{fio}.png')
+            if os.path.isdir(f'{path_to_end_folder}/{group}'):
+                img.save(f'{path_to_end_folder}/{group}/{fio}.png')
             else:
-                os.mkdir(f'{dir_path}/{group}')
-                img.save(f'{dir_path}/{group}/{fio}.png')
+                os.mkdir(f'{path_to_end_folder}/{group}')
+                img.save(f'{path_to_end_folder}/{group}/{fio}.png')
 elif checkbox_type == 1:
     # перебираем список
     for row in df.itertuples():
@@ -50,10 +53,10 @@ elif checkbox_type == 1:
         # меняем размер
         img = img.resize((110, 110))
         # проверяем наличие такого файла
-        if os.path.isfile(f'{dir_path}/{id_qr}.png'):
+        if os.path.isfile(f'{path_to_end_folder}/{id_qr}.png'):
             # если такой файл есть то добавляем постфикс в виде индекса строки
-            img.save(f'{dir_path}/{id_qr}_{row[0]}.png')
+            img.save(f'{path_to_end_folder}/{id_qr}_{row[0]}.png')
         else:
-            img.save(f'{dir_path}/{id_qr}.png')
+            img.save(f'{path_to_end_folder}/{id_qr}.png')
 
 
