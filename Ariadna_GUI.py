@@ -166,20 +166,6 @@ if __name__ == '__main__':
     Label(tab_qr_code,
           image=img
           ).grid(column=1, row=0, padx=10, pady=25)
-
-    # Создаем кнопку Выбрать файл с данными
-    btn_choose_data = Button(tab_qr_code, text='1) Выберите файл с данными', font=('Arial Bold', 20),
-                             command=select_file_data_xlsx
-                             )
-    btn_choose_data.grid(column=0, row=2, padx=10, pady=10)
-
-    # Создаем кнопку для выбора папки куда будут генерироваться файлы
-
-    btn_choose_end_folder = Button(tab_qr_code, text='2) Выберите конечную папку', font=('Arial Bold', 20),
-                                   command=select_end_folder
-                                   )
-    btn_choose_end_folder.grid(column=0, row=3, padx=10, pady=10)
-
     # создаем переключатели
 
     checkbox_type = IntVar()
@@ -193,9 +179,24 @@ if __name__ == '__main__':
     Radiobutton(frame_rb_type, text='Б) Обработка произвольной таблицы', variable=checkbox_type,
                 value=1).pack()
 
+    # Создаем кнопку Выбрать файл с данными
+    btn_choose_data = Button(tab_qr_code, text='2) Выберите файл с данными', font=('Arial Bold', 20),
+                             command=select_file_data_xlsx
+                             )
+    btn_choose_data.grid(column=0, row=2, padx=10, pady=10)
+
+    # Создаем кнопку для выбора папки куда будут генерироваться файлы
+
+    btn_choose_end_folder = Button(tab_qr_code, text='3) Выберите конечную папку', font=('Arial Bold', 20),
+                                   command=select_end_folder
+                                   )
+    btn_choose_end_folder.grid(column=0, row=3, padx=10, pady=10)
+
+
+
     #Создаем кнопку обработки данных
 
-    btn_proccessing_qr = Button(tab_qr_code, text='3) Создать QR', font=('Arial Bold', 20),
+    btn_proccessing_qr = Button(tab_qr_code, text='4) Создать QR', font=('Arial Bold', 20),
                                   command=processing_qr_code
                                   )
     btn_proccessing_qr.grid(column=0, row=6, padx=10, pady=10)
