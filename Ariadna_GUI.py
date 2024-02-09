@@ -103,7 +103,9 @@ def processing_qr_code():
             for row in df.itertuples():
                 id_qr = row[1]  # получаем значение первой колонки по которой будут различаться колонки
                 # создаем строку для qr кода
-                qr_str = '\n'.join(row[1:])
+                # делаем строковыми
+                lst_str = [str(value) for value in row[1:]]
+                qr_str = '\n'.join(lst_str)
                 qr = qrcode.QRCode(box_size=2)  # создаем экземпляр класса
                 qr.add_data(qr_str)  # добавляем данные
                 # создаем картинку
@@ -121,24 +123,24 @@ def processing_qr_code():
                 print(row)
 
     except NameError:
-        messagebox.showerror('Ариадна ver 1.0',
+        messagebox.showerror('Ариадна ver 1.1',
                              f'Выберите файлы с данными и папку куда будет генерироваться файл')
     except KeyError as e:
-        messagebox.showerror('Ариадна ver 1.0',
+        messagebox.showerror('Ариадна ver 1.1',
                              f'В таблице нет колонки {e.args}!\nПроверьте наличие колонки')
     except ValueError as e:
-        messagebox.showerror('Ариадна ver 1.0',
+        messagebox.showerror('Ариадна ver 1.1',
                              f'В таблице нет колонки {e.args}!\nПроверьте написание названия колонки')
     except FileNotFoundError:
-        messagebox.showerror('Ариадна ver 1.0',
+        messagebox.showerror('Ариадна ver 1.1',
                              f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
                              f'в слишком длинном пути к обрабатываемым файлам')
     else:
-        messagebox.showinfo('Ариадна ver 1.0', 'Данные успешно обработаны')
+        messagebox.showinfo('Ариадна ver 1.1', 'Данные успешно обработаны')
 
 if __name__ == '__main__':
     window = Tk()
-    window.title('Ариадна ver 1.0')
+    window.title('Ариадна ver 1.1')
     window.geometry('700x860')
     window.resizable(False, False)
 
