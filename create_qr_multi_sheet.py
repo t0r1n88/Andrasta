@@ -35,17 +35,27 @@ def processing_generate_data(data_file,end_folder,name_column_folder,name_qr_col
     lst_sheets = temp_wb.sheetnames
     qr_folder = f'{end_folder}/QR по отраслям/{current_time}'  # создаем папку куда будем складывать qr по организациям
     json_folder = f'{end_folder}/JSON по отраслям/{current_time}'
+    csv_folder = f'{end_folder}/CSV по отраслям/{current_time}'
     # перебираем листы
     for name_sphere in lst_sheets:
+        print(name_sphere)
         temp_df = pd.read_excel(data_file,sheet_name=name_sphere)
         if temp_df.shape[0] != 0:
             # Создаем JSON
             if not os.path.exists(f'{json_folder}/{name_sphere}'):
                 os.makedirs(f'{json_folder}/{name_sphere}')
-            print(name_sphere)
+
 
             temp_json_df = temp_df[['Вакансия', 'Полное название работодателя', 'Зарплата']]
             temp_json_df.to_json(f'{json_folder}/{name_sphere}/{name_sphere[:25]}.json')
+
+            # Создаем CSV
+            if not os.path.exists(f'{csv_folder}/{name_sphere}'):
+                os.makedirs(f'{csv_folder}/{name_sphere}')
+
+            temp_csv_df = temp_df[['Вакансия', 'Полное название работодателя', 'Зарплата']]
+            temp_csv_df.to_csv(f'{csv_folder}/{name_sphere}/{name_sphere[:25]}.csv',encoding='UTF-8',sep='|',header=True,index=False)
+
 
             # Создаем QR коды
             if not os.path.exists(f'{qr_folder}/{name_sphere}'):
