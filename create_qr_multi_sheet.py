@@ -78,10 +78,10 @@ def processing_generate_data(data_file,end_folder,name_column_folder,name_qr_col
             if not os.path.exists(f'{csv_folder}/{name_sphere}'):
                 os.makedirs(f'{csv_folder}/{name_sphere}')
 
-            temp_csv_df = temp_df[['Вакансия', 'Полное название работодателя', 'Зарплата','Ссылка на вакансию']]
+            temp_csv_df = temp_df[['Вакансия', 'Полное название работодателя', 'Зарплата','Контактный телефон','Email работодателя','Ссылка на вакансию']]
 
             temp_csv_df = temp_csv_df.applymap(replace_kav)
-            temp_csv_df.to_csv(f'{csv_folder}/{name_sphere}/{name_sphere[:25]}.csv',encoding='UTF-8',sep='|',header=True,index=False)
+            temp_csv_df.to_csv(f'{csv_folder}/{name_sphere}/{name_sphere[:25]}.csv',encoding='UTF-8',sep='|',header=False,index=False)
 
 
             # Создаем QR коды
