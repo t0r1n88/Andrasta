@@ -25,6 +25,18 @@ def extract_id_company(cell):
         return lst_org[-1]
 
 
+def replace_kav(cell):
+    """
+    Функция для замены кавычек и двойных кавычек, точки с запятой на точку
+    :param cell:
+    :return:
+    """
+    if isinstance(cell,str):
+        result = re.sub(r'["\']','',cell)
+        result = re.sub(r';','.',result)
+        return result
+
+
 
 def processing_generate_data(data_file,end_folder,name_column_folder,name_qr_column,base_url):
     """
@@ -67,6 +79,8 @@ def processing_generate_data(data_file,end_folder,name_column_folder,name_qr_col
                 os.makedirs(f'{csv_folder}/{name_sphere}')
 
             temp_csv_df = temp_df[['Вакансия', 'Полное название работодателя', 'Зарплата','Ссылка на вакансию']]
+
+            temp_csv_df = temp_csv_df.applymap(replace_kav)
             temp_csv_df.to_csv(f'{csv_folder}/{name_sphere}/{name_sphere[:25]}.csv',encoding='UTF-8',sep='|',header=True,index=False)
 
 
