@@ -88,7 +88,7 @@ def processing_generate_data(data_file,end_folder,name_column_folder,name_qr_col
                 os.makedirs(f'{qr_folder}/{name_sphere}')
 
             for row in temp_df.itertuples():
-                name_file = row[5]
+                name_file = row[4]
                 qr = qrcode.QRCode(box_size=2)  # создаем экземпляр класса
                 finish_url = row[47]
                 qr.add_data(finish_url)  # добавляем данные
