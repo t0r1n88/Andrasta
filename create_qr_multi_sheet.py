@@ -58,7 +58,7 @@ def processing_generate_data(data_file,end_folder,name_column_folder,name_qr_col
     json_folder = f'{end_folder}/JSON по отраслям/{current_time}'
     csv_folder = f'{end_folder}/CSV по отраслям/{current_time}'
 
-    base_url = 'https://trudvsem.ru/vacancy/card/'  # базовая ссылка для формирования ссылки на вакансию
+    # base_url = 'https://trudvsem.ru/vacancy/card/'  # базовая ссылка для формирования ссылки на вакансию
     # перебираем листы
     for name_sphere in lst_sheets:
         print(name_sphere)
@@ -66,7 +66,6 @@ def processing_generate_data(data_file,end_folder,name_column_folder,name_qr_col
 
         if temp_df.shape[0] != 0:
             # Создаем JSON
-            temp_df['Ссылка на вакансию'] = base_url + temp_df['URL_for_qr']
             if not os.path.exists(f'{json_folder}/{name_sphere}'):
                 os.makedirs(f'{json_folder}/{name_sphere}')
 
@@ -91,8 +90,7 @@ def processing_generate_data(data_file,end_folder,name_column_folder,name_qr_col
             for row in temp_df.itertuples():
                 name_file = row[5]
                 qr = qrcode.QRCode(box_size=2)  # создаем экземпляр класса
-                url_vac = row[48]
-                finish_url = base_url + url_vac
+                finish_url = row[47]
                 qr.add_data(finish_url)  # добавляем данные
                 # # # создаем картинку
                 img = qr.make_image(fill_color="black", back_color="white")

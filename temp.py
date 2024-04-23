@@ -1,65 +1,136 @@
-tab_generate_data = ttk.Frame(tab_control)
-tab_control.add(tab_generate_data, text='Генерация QR и JSON')
+"""
+Скрипт для создания Qr кодов по папкам
+"""
+import pandas as pd
+import numpy as np
+import openpyxl
+from openpyxl.utils.exceptions import IllegalCharacterError
+import json
+import ast
+import qrcode
+import re
+import os
+from tkinter import messagebox
+import datetime
+import time
+from dateutil import parser
+pd.options.mode.chained_assignment = None
 
-generate_data_frame_description = LabelFrame(tab_generate_data)
-generate_data_frame_description.pack()
+def extract_id_company(cell):
+    """
+    Для извления айди компании
+    """
+    if isinstance(cell,str):
+        lst_org = cell.split('/')
+        return lst_org[-1]
 
-lbl_hello_generate_data = Label(generate_data_frame_description,
-                                text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
-                                     'Аналитика по кадровой ситуации в регионе на основании данных \n'
-                                     'с сайта Работа в России (trudvsem.ru) https://trudvsem.ru/opendata/datasets',
-                                width=60)
-lbl_hello_generate_data.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
 
-# Картинка
-path_to_img_generate_data = resource_path('logo.png')
-img_generate_data = PhotoImage(file=path_to_img_generate_data)
-Label(generate_data_frame_description,
-      image=img_generate_data, padx=10, pady=10
-      ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
+def replace_kav(cell):
+    """
+    Функция для замены кавычек и двойных кавычек, точки с запятой на точку
+    :param cell:
+    :return:
+    """
+    if isinstance(cell,str):
+        result = re.sub(r'["\']','',cell)
+        result = re.sub(r';','.',result)
+        return result
 
-# Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
-frame_data_generate_data = LabelFrame(tab_generate_data, text='Подготовка')
-frame_data_generate_data.pack(padx=10, pady=10)
 
-# Кнопка для выбора файла csv
-btn_choose_data_generate_data = Button(frame_data_generate_data, text='1) Выберите файл скачанный с сайта\n'
-                                                                      'Работа в России в формате csv',
-                                       font=('Arial Bold', 15),
-                                       command=select_file_csv_trudvsem
-                                       )
-btn_choose_data_generate_data.pack(padx=10, pady=10)
 
-# Создаем кнопку для выбора файла с работодателями
+def processing_generate_data(data_file,end_folder,name_column_folder,name_qr_column,base_url):
+    """
+    Функция генерирующая куар и джейсон
+    :param data_file:
+    :param end_folder:
+    :param name_column_folder:
+    :param name_qr_column:
+    :param base_url:
+    :return:
+    """
 
-btn_choose_data_org_generate_data = Button(frame_data_generate_data, text='2) Выберите файл с работодателями',
-                                           font=('Arial Bold', 15),
-                                           command=select_file_org_trudvsem
-                                           )
-btn_choose_data_org_generate_data.pack(padx=10, pady=10)
-#
-# Создаем поле для ввода региона
+    t = time.localtime()  # получаем текущее время и дату
+    current_time = time.strftime('%H_%M_%S', t)
+    current_date = time.strftime('%d_%m_%Y', t)
+    temp_wb = openpyxl.load_workbook(data_file)
+    lst_sheets = temp_wb.sheetnames
+    qr_folder = f'{end_folder}/QR по отраслям/{current_time}'  # создаем папку куда будем складывать qr по организациям
+    json_folder = f'{end_folder}/JSON по отраслям/{current_time}'
+    csv_folder = f'{end_folder}/CSV по отраслям/{current_time}'
 
-# Определяем текстовую переменную
-entry_region = StringVar()
-# Описание поля
-label_generate_data = Label(frame_data_generate_data,
-                            text='3) Введите название региона')
-label_generate_data.pack(padx=10, pady=10)
-# поле ввода имени листа
-generate_data_entry = Entry(frame_data_generate_data, textvariable=entry_region,
-                            width=30)
-generate_data_entry.pack(padx=10, pady=10)
+    base_url = 'https://trudvsem.ru/vacancy/card/'  # базовая ссылка для формирования ссылки на вакансию
+    # перебираем листы
+    for name_sphere in lst_sheets:
+        print(name_sphere)
+        temp_df = pd.read_excel(data_file,sheet_name=name_sphere)
 
-# Кнопка для выбора конечной папки
-btn_choose_end_folder_generate_data = Button(frame_data_generate_data, text='4) Выберите конечную папку',
-                                             font=('Arial Bold', 15),
-                                             command=select_end_folder_generate_data
-                                             )
-btn_choose_end_folder_generate_data.pack(padx=10, pady=10)
+        if temp_df.shape[0] != 0:
+            # Создаем JSON
+            temp_df['Ссылка на вакансию'] = base_url + temp_df['URL_for_qr']
+            if not os.path.exists(f'{json_folder}/{name_sphere}'):
+                os.makedirs(f'{json_folder}/{name_sphere}')
 
-btn_proccessing_data_generate_data = Button(tab_generate_data, text='5) Обработать данные',
-                                            font=('Arial Bold', 20),
-                                            command=processing_generate_data_vdnh
-                                            )
-btn_proccessing_data_generate_data.pack(padx=10, pady=10)
+
+            temp_json_df = temp_df[['Вакансия', 'Полное название работодателя', 'Зарплата']]
+            temp_json_df.to_json(f'{json_folder}/{name_sphere}/{name_sphere[:25]}.json')
+
+            # Создаем CSV
+            if not os.path.exists(f'{csv_folder}/{name_sphere}'):
+                os.makedirs(f'{csv_folder}/{name_sphere}')
+
+            temp_csv_df = temp_df[['Вакансия', 'Полное название работодателя', 'Зарплата','Контактный телефон','Email работодателя','Ссылка на вакансию']]
+
+            temp_csv_df = temp_csv_df.applymap(replace_kav)
+            temp_csv_df.to_csv(f'{csv_folder}/{name_sphere}/{name_sphere[:25]}.csv',encoding='UTF-8',sep='|',header=False,index=False)
+
+
+            # Создаем QR коды
+            if not os.path.exists(f'{qr_folder}/{name_sphere}'):
+                os.makedirs(f'{qr_folder}/{name_sphere}')
+
+            for row in temp_df.itertuples():
+                name_file = row[5]
+                qr = qrcode.QRCode(box_size=2)  # создаем экземпляр класса
+                url_vac = row[48]
+                finish_url = base_url + url_vac
+                qr.add_data(finish_url)  # добавляем данные
+                # # # создаем картинку
+                img = qr.make_image(fill_color="black", back_color="white")
+                # меняем размер
+                img = img.resize((110, 110))
+                # очищаем от запрещенных символов
+                id_qr = re.sub(r'[<> :"?*|\\/]', ' ', name_file)
+                id_qr = id_qr[:20]  # оставляем часть
+                # проверяем наличие такого файла
+
+                # itog_path =f'{qr_folder}/{name_company}/{id_qr}.png'
+                #
+                # # считаем возможную длину названия файл с учетом слеша и расширения с точкой и порядковым номером файла
+                # threshold_name = 200 - (len(itog_path) + 10)
+                # name_company = name_company[:threshold_name]  # ограничиваем название файла
+
+                if os.path.isfile(f'{qr_folder}/{name_sphere}/{id_qr}.png'):
+                    # если такой файл есть то добавляем постфикс в виде индекса строки
+                    img.save(f'{qr_folder}/{name_sphere}/{id_qr}_{row[0]}.png')
+                else:
+                    img.save(f'{qr_folder}/{name_sphere}/{id_qr}.png')
+
+
+
+
+
+
+
+
+
+
+
+if __name__ == '__main__':
+    main_file = 'data/Общий файл.xlsx'
+    main_end_folder = 'data/Отрасли'
+    main_name_column_folder = 'Сфера деятельности'
+    main_name_qr_column = 'URL_for_qr'
+    main_base_url = 'https://trudvsem.ru/vacancy/card/'
+
+    processing_generate_data(main_file,main_end_folder,main_name_column_folder,main_name_qr_column,main_base_url)
+    print('Lindy Booth')
